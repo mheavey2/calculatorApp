@@ -83,7 +83,7 @@ function calculateExpression(previousOperand, currentOperand, operation) {
 // handle decimal input
 function appendDot(currentInput) {
   if (!currentOperand.includes(".")) {
-    currentOperand = currentOperand.toString() + currentInput;
+    updateCurrentOperand(currentInput);
   }
   console.log("appendDot currentOperand is: " + currentOperand);
   updateDisplay();
@@ -95,7 +95,7 @@ function appendNumber(currentInput) {
 
   // check to see if there's already a decimal point, (don't allow duplicate)
   if (currentInput === "." && currentOperand.includes(".")) return;
-  currentOperand = currentOperand.toString() + currentInput.toString();
+  updateCurrentOperand(currentInput);
   previousOperand = currentOperand;
 }
 
@@ -114,26 +114,11 @@ function updateDisplay() {
   //   document.querySelector(".previous-operand").innerText = currentOperand;
 }
 // button event listeners
-//see what button was pressed
-//if (calculatorKeys) {
-//calculatorKeys.addEventListener("click", (e) => {
-//if (document.getElementsByTagName("button")) {
-//     const action = e.target.dataset.action;
 
-//     if (!action) {
-//       console.log("input is a number key");
-//     } else if (action === "decimal") {
-//       console.log("input is decimal key");
-//     } else if (action === "clear") {
-//       console.log("input is clear key");
-//     } else if (action === "calculate") {
-//       console.log("input is equals key");
-//     } else {
-//       console.log("input is operation key");
-//     }
-//   }
-// });
-
+//function to update current operand to reduce code repitition
+let updateCurrentOperand = (currentInput) => {
+  currentOperand = currentOperand.toString() + currentInput.toString();
+};
 // number keys
 if (numberKeys) {
   numberKeys.forEach((button) => {
@@ -149,17 +134,39 @@ if (numberKeys) {
 if (operatorKeys) {
   operatorKeys.forEach((button) => {
     button.addEventListener("click", (e) => {
-      console.log(button.classList);
-      if (button.classList.contains("in-use")) return;
-      button.classList.add("in-use");
-      console.log(button.classList);
-      // if there's already an operator key pressed do nothing
+      console.log(
+        "initial classlist value " + button.classList,
+        button.innerText
+      );
+      
+
+        // if an operator key isn't pressed update
+        if (
+          button.classList.contains("in-use") ||
+          currentOperand.includes(button.innerText)
+        )
+          return;
+        //when button is pressed add 'in-use' class to it
+        button.classList.add("in-use");
+
+        updateCurrentOperand(button.innerText);
+        updateDisplay();
+        button.classList.remove("in-use");
+
+        //TODO: remove console log
+        console.log(
+          "after modifying classlist " + button.classList,
+          button.innerText
+        );
+      }
     });
   });
 }
-
+//TODO all functionality to clear just last character
 clearAllButton.addEventListener("click", clear);
 equalsButton.addEventListener("click", calculateExpression);
+
+//when decimal is clicked
 decimalButton.addEventListener("click", (e) => {
   console.log("decimal btn event: " + decimalButton.innerText);
 
