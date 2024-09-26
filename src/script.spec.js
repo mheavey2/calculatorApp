@@ -1,5 +1,10 @@
-const calculationFunctions = require("./script");
-const { sum, subtract, divide, multiply } = calculationFunctions;
+const {
+  sum,
+  subtract,
+  divide,
+  multiply,
+  calculateExpression,
+} = require("./script");
 
 const x = 13;
 const y = 5;
@@ -18,3 +23,9 @@ describe("check the calculation functions", () => {
     expect(divide(x, y)).toBe(3);
   });
 });
+
+// describe("determine which calculation to perform based on operator and perform it", () => {
+//   test("when plus is selected sum 2 numbers", () => {
+//     expect(calculateExpression(x, y, "+")).toBe(18);
+//   });
+// });
