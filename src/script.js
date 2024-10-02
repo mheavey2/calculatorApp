@@ -37,11 +37,14 @@ let updateCurrentOperand = (currentInput) => {
 };
 
 // handle decimal input
-function appendDot(currentInput) {
+function appendDot() {
   if (!currentOperand.includes(".")) {
-    updateCurrentOperand(currentInput);
+    if (currentOperand === "") {
+      currentOperand = "0";
+    }
+    currentOperand += ".";
   }
-  console.log("appendDot currentOperand is: " + currentOperand);
+
   updateDisplay();
 }
 
@@ -76,72 +79,20 @@ function updateDisplay() {
 //update the display to include the new number
 if (numberKeys) {
   numberKeys.forEach((button) => {
-    button.addEventListener("click", (e) => {
-      // TODO:remove consoleLog
-      // console.log("button inner test: " + button.innerText);
-      // console.log(
-      //   "numberKey hit, currentOperand value is: " +
-      //     currentOperand +
-      //     typeof currentOperand
-      // );
-      // console.log(
-      //   "numberKey hit, previousOperand value is: " +
-      //     previousOperand +
-      //     typeof previousOperand
-      // );
-      // console.log(
-      //   "numberKey hit, operation value is: " + operation + typeof operation
-      // );
-
+    button.addEventListener("click", () => {
       appendNumber(button.innerText);
-      // console.log(
-      //   "after appendNumber called, currentOperand value is: " + currentOperand
-      // );
-      // console.log(
-      //   "after appendNumber called, previousOperand value is: " +
-      //     previousOperand
-      // );
       updateDisplay();
     });
   });
 }
 //operator keys
-//set operation to button value when clicked.
-//add 'in-use' class
-//update display to include operator
-//remove 'in-'use' class
+
 if (operatorKeys) {
   operatorKeys.forEach((button) => {
-    button.addEventListener("click", (e) => {
-      //set the current operation to the value of the operator key
-      operation = button.innerText;
-
-      // //console logs
-      // console.log("initial classlist value " + button.classList);
-      // console.log("operation is: " + operation);
-      // console.log("opKeycurOperand is: " + currentOperand);
-
-      // if an operator key isn't pressed update
-      if (
-        button.classList.contains("in-use") ||
-        currentOperand.includes(operation)
-      )
-        return;
-      //when button is pressed add 'in-use' class to it
-      button.classList.add("in-use");
-
-      chooseOperation(operation);
-      updateCurrentOperand(operation);
+    button.addEventListener("click", () => {
+      chooseOperation(button.innerText);
 
       updateDisplay();
-
-      button.classList.remove("in-use");
-
-      //TODO: remove console log
-      // console.log(
-      //   "after modifying classlist " + button.classList,
-      //   button.innerText
-      // );
     });
   });
 }
@@ -176,7 +127,6 @@ function calculateExpression() {
       computation = prev / current;
       break;
     default:
-      //console.log("default case: " + computation);
       return;
   }
   //update currentOperand value to computed value
@@ -201,20 +151,15 @@ if (equalsButton) {
 
 //when decimal button is clicked
 if (decimalButton) {
-  decimalButton.addEventListener("click", (e) => {
-    console.log("decimal btn event: " + decimalButton.innerText);
-
-    appendDot(decimalButton.innerText);
-  });
+  decimalButton.addEventListener("click", appendDot);
 }
-//}
 
-const exportedFunctions = {
-  sum,
-  divide,
-  multiply,
-  subtract,
-  calculateExpression,
-};
+// const exportedFunctions = {
+//   sum,
+//   divide,
+//   multiply,
+//   subtract,
+//   calculateExpression,
+// };
 
-module.exports = exportedFunctions;
+// module.exports = exportedFunctions;
