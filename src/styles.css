@@ -52,17 +52,18 @@ button:active {
 .key-equal {
   color: #fff;
   background-color: #2e86e2;
-  grid-row: 2/ 6;
-  grid-column: 4/ 5;
+  grid-row: 2/ 5;
+  grid-column: 4/ 4;
 }
-.all-clear {
+.all-clear,
+.delete-number {
   background-color: #f059f0;
 }
 
 .calculator-keys {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  /* grid-template-rows: repeat(5, 1fr); */
+  grid-template-rows: repeat(5, 1fr);
   gap: 1em 1em;
   padding: 1.5rem;
 }

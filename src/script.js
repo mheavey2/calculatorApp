@@ -4,7 +4,7 @@ console.log("JS loaded");
 const calculator = document.querySelector(".calculator");
 const calculatorKeys = document.querySelector(".calculator-keys");
 const operatorKeys = document.querySelectorAll(".key-operator");
-const actionKeys = document.querySelectorAll("action-key");
+const deleteNumberButton = document.querySelector(".delete-number");
 const numberKeys = document.querySelectorAll(".key-number");
 const equalsButton = document.querySelector(".key-equal");
 const clearAllButton = document.querySelector(".all-clear");
@@ -21,6 +21,7 @@ let operation = null;
 //clear screen and reset calculators' state to the default
 function clear() {
   displayCurrent.textContent = "";
+  displayCurrent.classList.remove("result-active");
   displayPrevious.textContent = "";
   console.log("display reset");
   currentOperand = "";
@@ -30,6 +31,12 @@ function clear() {
   return displayCurrent;
 }
 
+//delete value of last key
+function deleteNumber() {
+  currentOperand = currentOperand.toString().slice(0, -1);
+
+  updateDisplay();
+}
 //function to update current operand to reduce code repitition
 
 let updateCurrentOperand = (currentInput) => {
@@ -71,25 +78,35 @@ function updateDisplay() {
   displayCurrent.innerText = currentOperand;
   displayPrevious.innerText = previousOperand + " " + (operation || " ");
 }
+
 // button event listeners
 
 // number keys
 //when user hits number key
 //send the value to the appendNumber function to append to currentOperand
-//update the display to include the new number
+//update the display to include the new
+//if hit number after a calculation nothing happens
+
 if (numberKeys) {
   numberKeys.forEach((button) => {
     button.addEventListener("click", () => {
-      appendNumber(button.innerText);
-      updateDisplay();
+      if (!displayCurrent.classList.contains("result-active")) {
+        appendNumber(button.innerText);
+        updateDisplay();
+      }
     });
   });
 }
+
 //operator keys
 
 if (operatorKeys) {
   operatorKeys.forEach((button) => {
     button.addEventListener("click", () => {
+      //if press operator after a calculation was completed remove the result-active class
+      if (displayCurrent.classList.contains("result-active")) {
+        displayCurrent.classList.remove("result-active");
+      }
       chooseOperation(button.innerText);
 
       updateDisplay();
@@ -129,17 +146,30 @@ function calculateExpression() {
     default:
       return;
   }
+  //set the previousOperand to the full equation
+  previousOperand = previousOperand + operation + currentOperand + "=";
   //update currentOperand value to computed value
   currentOperand = computation;
+  displayCurrent.classList.add("result-active");
+
   //reset operation to undefined
   operation = undefined;
-  //set previous operand to current
-  previousOperand = currentOperand;
+
   //update the display
   updateDisplay();
 }
 
 //TODO: all functionality to clear just last character
+//when delete button is pressed
+if (deleteNumberButton) {
+  deleteNumberButton.addEventListener("click", () => {
+    if (!displayCurrent.classList.contains("result-active")) {
+      console.log("delNum dispCurr classlist: " + displayCurrent.classList);
+      deleteNumber();
+    }
+  });
+}
+
 //when AC button clicked
 if (clearAllButton) {
   clearAllButton.addEventListener("click", clear);
@@ -153,13 +183,3 @@ if (equalsButton) {
 if (decimalButton) {
   decimalButton.addEventListener("click", appendDot);
 }
-
-// const exportedFunctions = {
-//   sum,
-//   divide,
-//   multiply,
-//   subtract,
-//   calculateExpression,
-// };
-
-// module.exports = exportedFunctions;
