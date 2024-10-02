@@ -19,55 +19,196 @@ let operation = null;
 // define functions
 //clear screen
 function clear() {
-  displayCurrent.textContent = "0";
+  displayCurrent.textContent = "";
   console.log("display reset");
+  currentOperand = "0";
+  previousOperand = "0";
+  operation = null;
+
   return displayCurrent;
-  // reset calculators' state to the default of 0
+  // reset calculators' state to the default
 }
 
-//calculation functions
+//function to update current operand to reduce code repitition
+let updateDisplayCurrentOperand = (currentInput) => {
+  currentOperand = currentOperand.toString() + currentInput.toString();
+};
+let updateCurrentOperand = (currentInput) => {
+  currentOperand = currentOperand + currentInput;
+};
 
-//sum
-const sum = (a, b) => {
-  return a + b;
-};
-//subtract
-const subtract = (a, b) => {
-  return a - b;
-};
-//multiply
-const multiply = (a, b) => {
-  return a * b;
-};
-//divide
-const divide = (a, b) => {
-  return a / b;
-};
+// handle decimal input
+function appendDot(currentInput) {
+  if (!currentOperand.includes(".")) {
+    updateDisplayCurrentOperand(currentInput);
+  }
+  console.log("appendDot currentOperand is: " + currentOperand);
+  updateDisplay();
+}
+
+//append value of the key the user just pressed to display.
+function appendNumber(currentInput) {
+  console.log("currentInput in appendNumber method is: " + currentInput);
+  console.log("appendNumber initial currentOperand is: " + currentOperand);
+  console.log("appendNumber initial previousOperand is: " + previousOperand);
+
+  // check to see if there's already a decimal point, (don't allow duplicate)
+  if (currentInput === "." && currentOperand.includes(".")) return;
+  updateCurrentOperand(currentInput);
+}
+
+// takes in the operator key selected and if there are values already passed as operands calls calculateExpression function
+function chooseOperation(selectedOperation) {
+  operation = selectedOperation;
+  if (currentOperand === "") return;
+  if (previousOperand !== "") {
+    calculateExpression();
+  }
+
+  previousOperand = currentOperand;
+  currentOperand = "";
+}
+
+//update display with the current and previous operands, with the chosen operator displayed next to the previous operand
+function updateDisplay() {
+  document.querySelector(".display-current-operand").innerText = currentOperand;
+  document.querySelector("display.previous-operand").innerText =
+    previousOperand + " " + (operation || " ");
+
+  displayCurrent.innerText = currentOperand;
+}
+// button event listeners
+
+// number keys
+//when user hits number key
+//send the value to the appendNumber function to append to currentOperand
+//update the display to include the new number
+if (numberKeys) {
+  numberKeys.forEach((button) => {
+    button.addEventListener("click", (e) => {
+      // TODO:remove consoleLog
+      // console.log("button inner test: " + button.innerText);
+      // console.log(
+      //   "numberKey hit, currentOperand value is: " +
+      //     currentOperand +
+      //     typeof currentOperand
+      // );
+      // console.log(
+      //   "numberKey hit, previousOperand value is: " +
+      //     previousOperand +
+      //     typeof previousOperand
+      // );
+      // console.log(
+      //   "numberKey hit, operation value is: " + operation + typeof operation
+      // );
+
+      appendNumber(button.innerText);
+      // console.log(
+      //   "after appendNumber called, currentOperand value is: " + currentOperand
+      // );
+      // console.log(
+      //   "after appendNumber called, previousOperand value is: " +
+      //     previousOperand
+      // );
+      updateDisplay();
+    });
+  });
+}
+//operator keys
+//set operation to button value when clicked.
+//add 'in-use' class
+//update display to include operator
+//remove 'in-'use' class
+if (operatorKeys) {
+  operatorKeys.forEach((button) => {
+    button.addEventListener("click", (e) => {
+      //set the current operation to the value of the operator key
+      operation = button.innerText;
+
+      // //console logs
+      // console.log("initial classlist value " + button.classList);
+      // console.log("operation is: " + operation);
+      // console.log("opKeycurOperand is: " + currentOperand);
+
+      // if an operator key isn't pressed update
+      if (
+        button.classList.contains("in-use") ||
+        currentOperand.includes(operation)
+      )
+        return;
+      //when button is pressed add 'in-use' class to it
+      button.classList.add("in-use");
+
+      chooseOperation(operation);
+      updateDisplayCurrentOperand(operation);
+
+      updateDisplay();
+
+      button.classList.remove("in-use");
+
+      //TODO: remove console log
+      // console.log(
+      //   "after modifying classlist " + button.classList,
+      //   button.innerText
+      // );
+    });
+  });
+}
 
 //handle the calculation, store prev and current operand and value of the computation result
-function calculateExpression(previousOperand, currentOperand, operation) {
+function calculateExpression() {
   // compute the expression
   let computation;
+
+  // //log to check values
+  // console.log(
+  //   "calculateEx prevOp argument value: " +
+  //     previousOperand +
+  //     typeof previousOperand
+  // );
+  // console.log(
+  //   "calculateEx currentOp argument value: " +
+  //     currentOperand +
+  //     typeof currentOperand
+  // );
+  // console.log(
+  //   "calculateEx operation argument value: " + operation + typeof operation
+  // );
+  // console.log(
+  //   "calculateEx calculation argument value: " +
+  //     computation +
+  //     typeof computation
+  // );
+
   //convert the string values inputted to numerical values
   const prev = parseFloat(previousOperand);
   const current = parseFloat(currentOperand);
+
+  console.log("prev value post parsing: " + prev + typeof prev);
+  console.log("current value post parsing: " + current + typeof prev);
+
   //if either of the inputted values are not numbers return
-  if (isNaN(prev) || isNaN(current)) return;
+  if (isNaN(prev) || isNaN(current)) {
+    console.log("invalid input. not a number");
+    return;
+  }
   //do one of the following depending on what operation was inputted
   switch (operation) {
     case "+":
-      computation = sum(prev, current);
+      computation = prev + current;
+
       break;
     case "-":
-      computation = subtract(prev, current);
+      computation = prev - current;
       break;
     case "*":
-      computation = multiply(prev, current);
+      computation = prev * current;
       break;
     case "/":
-      computation = divide(prev, current);
+      computation = prev / current;
       break;
     default:
+      //console.log("default case: " + computation);
       return;
   }
   //update currentOperand value to computed value
@@ -78,100 +219,43 @@ function calculateExpression(previousOperand, currentOperand, operation) {
   previousOperand = currentOperand;
   //update the display
   updateDisplay();
+  // console.log(
+  //   "final computation value from calculate function: " + computation
+  // );
+  // console.log(
+  //   "final currentOperand value from calculate function: " + currentOperand
+  // );
 }
 
-// handle decimal input
-function appendDot(currentInput) {
-  if (!currentOperand.includes(".")) {
-    updateCurrentOperand(currentInput);
-  }
-  console.log("appendDot currentOperand is: " + currentOperand);
-  updateDisplay();
+//TODO: all functionality to clear just last character
+if (clearAllButton) {
+  clearAllButton.addEventListener("click", clear);
 }
+if (equalsButton) {
+  equalsButton.addEventListener("click", (e) => {
+    console.log("equals btn event: ");
+    console.log(
+      "equals btn currOperand value: " + currentOperand + typeof currentOperand
+    );
+    console.log(
+      "equals btn prevOperand value: " +
+        previousOperand +
+        typeof previousOperand
+    );
+    console.log("equals btn operation value: " + operation);
 
-//append value of the key the user just pressed to display.
-function appendNumber(currentInput) {
-  console.log("currentInput in appendNumber method is: " + currentInput);
-
-  // check to see if there's already a decimal point, (don't allow duplicate)
-  if (currentInput === "." && currentOperand.includes(".")) return;
-  updateCurrentOperand(currentInput);
-  previousOperand = currentOperand;
-}
-
-function chooseOperation(selectedOperation) {
-  if (currentOperand === "") return;
-  if (previousOperand !== "") {
-    calculateExpression();
-  }
-  operation = selectedOperation;
-  previousOperand = currentOperand;
-  currentOperand = "";
-}
-
-function updateDisplay() {
-  displayCurrent.innerText = currentOperand;
-  //   document.querySelector(".previous-operand").innerText = currentOperand;
-}
-// button event listeners
-
-//function to update current operand to reduce code repitition
-let updateCurrentOperand = (currentInput) => {
-  currentOperand = currentOperand.toString() + currentInput.toString();
-};
-// number keys
-if (numberKeys) {
-  numberKeys.forEach((button) => {
-    button.addEventListener("click", (e) => {
-      // TODO:remove consoleLog
-      console.log(button.innerText);
-      appendNumber(button.innerText);
-      updateDisplay();
-    });
+    calculateExpression(currentOperand, previousOperand, operation);
   });
 }
-//operator keys
-if (operatorKeys) {
-  operatorKeys.forEach((button) => {
-    button.addEventListener("click", (e) => {
-      console.log(
-        "initial classlist value " + button.classList,
-        button.innerText
-      );
-      
-
-        // if an operator key isn't pressed update
-        if (
-          button.classList.contains("in-use") ||
-          currentOperand.includes(button.innerText)
-        )
-          return;
-        //when button is pressed add 'in-use' class to it
-        button.classList.add("in-use");
-
-        updateCurrentOperand(button.innerText);
-        updateDisplay();
-        button.classList.remove("in-use");
-
-        //TODO: remove console log
-        console.log(
-          "after modifying classlist " + button.classList,
-          button.innerText
-        );
-      }
-    });
-  });
-}
-//TODO all functionality to clear just last character
-clearAllButton.addEventListener("click", clear);
-equalsButton.addEventListener("click", calculateExpression);
 
 //when decimal is clicked
-decimalButton.addEventListener("click", (e) => {
-  console.log("decimal btn event: " + decimalButton.innerText);
+if (decimalButton) {
+  decimalButton.addEventListener("click", (e) => {
+    console.log("decimal btn event: " + decimalButton.innerText);
 
-  appendDot(decimalButton.innerText);
-});
+    appendDot(decimalButton.innerText);
+  });
+}
 //}
 
 const exportedFunctions = {
