@@ -159,7 +159,6 @@ function calculateExpression() {
   updateDisplay();
 }
 
-//TODO: all functionality to clear just last character
 //when delete button is pressed
 if (deleteNumberButton) {
   deleteNumberButton.addEventListener("click", () => {
