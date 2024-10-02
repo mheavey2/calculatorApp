@@ -10,6 +10,7 @@ const equalsButton = document.querySelector(".key-equal");
 const clearAllButton = document.querySelector(".all-clear");
 const decimalButton = document.querySelector(".decimal");
 const displayCurrent = document.querySelector(".display-current-operand");
+const displayPrevious = document.querySelector(".display-previous-operand");
 
 // define variables to store current and previous operand and operation performed
 let currentOperand = "";
@@ -17,22 +18,20 @@ let previousOperand = "";
 let operation = null;
 
 // define functions
-//clear screen
+//clear screen and reset calculators' state to the default
 function clear() {
   displayCurrent.textContent = "";
+  displayPrevious.textContent = "";
   console.log("display reset");
-  currentOperand = "0";
-  previousOperand = "0";
+  currentOperand = "";
+  previousOperand = "";
   operation = null;
 
   return displayCurrent;
-  // reset calculators' state to the default
 }
 
 //function to update current operand to reduce code repitition
-let updateDisplayCurrentOperand = (currentInput) => {
-  currentOperand = currentOperand.toString() + currentInput.toString();
-};
+
 let updateCurrentOperand = (currentInput) => {
   currentOperand = currentOperand + currentInput;
 };
@@ -40,7 +39,7 @@ let updateCurrentOperand = (currentInput) => {
 // handle decimal input
 function appendDot(currentInput) {
   if (!currentOperand.includes(".")) {
-    updateDisplayCurrentOperand(currentInput);
+    updateCurrentOperand(currentInput);
   }
   console.log("appendDot currentOperand is: " + currentOperand);
   updateDisplay();
@@ -48,10 +47,6 @@ function appendDot(currentInput) {
 
 //append value of the key the user just pressed to display.
 function appendNumber(currentInput) {
-  console.log("currentInput in appendNumber method is: " + currentInput);
-  console.log("appendNumber initial currentOperand is: " + currentOperand);
-  console.log("appendNumber initial previousOperand is: " + previousOperand);
-
   // check to see if there's already a decimal point, (don't allow duplicate)
   if (currentInput === "." && currentOperand.includes(".")) return;
   updateCurrentOperand(currentInput);
@@ -59,23 +54,19 @@ function appendNumber(currentInput) {
 
 // takes in the operator key selected and if there are values already passed as operands calls calculateExpression function
 function chooseOperation(selectedOperation) {
-  operation = selectedOperation;
   if (currentOperand === "") return;
   if (previousOperand !== "") {
     calculateExpression();
   }
-
+  operation = selectedOperation;
   previousOperand = currentOperand;
   currentOperand = "";
 }
 
 //update display with the current and previous operands, with the chosen operator displayed next to the previous operand
 function updateDisplay() {
-  document.querySelector(".display-current-operand").innerText = currentOperand;
-  document.querySelector("display.previous-operand").innerText =
-    previousOperand + " " + (operation || " ");
-
   displayCurrent.innerText = currentOperand;
+  displayPrevious.innerText = previousOperand + " " + (operation || " ");
 }
 // button event listeners
 
@@ -140,7 +131,7 @@ if (operatorKeys) {
       button.classList.add("in-use");
 
       chooseOperation(operation);
-      updateDisplayCurrentOperand(operation);
+      updateCurrentOperand(operation);
 
       updateDisplay();
 
@@ -160,32 +151,9 @@ function calculateExpression() {
   // compute the expression
   let computation;
 
-  // //log to check values
-  // console.log(
-  //   "calculateEx prevOp argument value: " +
-  //     previousOperand +
-  //     typeof previousOperand
-  // );
-  // console.log(
-  //   "calculateEx currentOp argument value: " +
-  //     currentOperand +
-  //     typeof currentOperand
-  // );
-  // console.log(
-  //   "calculateEx operation argument value: " + operation + typeof operation
-  // );
-  // console.log(
-  //   "calculateEx calculation argument value: " +
-  //     computation +
-  //     typeof computation
-  // );
-
   //convert the string values inputted to numerical values
   const prev = parseFloat(previousOperand);
   const current = parseFloat(currentOperand);
-
-  console.log("prev value post parsing: " + prev + typeof prev);
-  console.log("current value post parsing: " + current + typeof prev);
 
   //if either of the inputted values are not numbers return
   if (isNaN(prev) || isNaN(current)) {
@@ -219,36 +187,19 @@ function calculateExpression() {
   previousOperand = currentOperand;
   //update the display
   updateDisplay();
-  // console.log(
-  //   "final computation value from calculate function: " + computation
-  // );
-  // console.log(
-  //   "final currentOperand value from calculate function: " + currentOperand
-  // );
 }
 
 //TODO: all functionality to clear just last character
+//when AC button clicked
 if (clearAllButton) {
   clearAllButton.addEventListener("click", clear);
 }
+//when equals button clicked
 if (equalsButton) {
-  equalsButton.addEventListener("click", (e) => {
-    console.log("equals btn event: ");
-    console.log(
-      "equals btn currOperand value: " + currentOperand + typeof currentOperand
-    );
-    console.log(
-      "equals btn prevOperand value: " +
-        previousOperand +
-        typeof previousOperand
-    );
-    console.log("equals btn operation value: " + operation);
-
-    calculateExpression(currentOperand, previousOperand, operation);
-  });
+  equalsButton.addEventListener("click", calculateExpression);
 }
 
-//when decimal is clicked
+//when decimal button is clicked
 if (decimalButton) {
   decimalButton.addEventListener("click", (e) => {
     console.log("decimal btn event: " + decimalButton.innerText);
